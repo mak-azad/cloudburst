@@ -157,12 +157,14 @@ def _resolve_ref_normal(refs, kvs, cache):
     deserialize_map = {}
     kv_pairs = {}
     keys = set()
-
+    logging.basicConfig(filename= 'executor_trace.txt', level = logging.INFO, format = '%(asctime)s %(message)s')
     for ref in refs:
         deserialize_map[ref.key] = ref.deserialize
         if ref.key in cache:
+            logging.info('Cache hit for key %s' % str(ref.key))
             kv_pairs[ref.key] = cache[ref.key]
         else:
+            logging.info('Cache miss for key %s' % str(ref.key))
             keys.add(ref.key)
 
     keys = list(keys)
