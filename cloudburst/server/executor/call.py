@@ -14,7 +14,7 @@
 
 import logging
 import time
-
+import json
 from anna.lattices import (
     Lattice,
     MapLattice,
@@ -157,15 +157,21 @@ def _resolve_ref_normal(refs, kvs, cache):
     deserialize_map = {}
     kv_pairs = {}
     keys = set()
-    logging.basicConfig(filename= 'executor_trace.txt', level = logging.INFO, format = '%(asctime)s %(message)s')
+    data = {}
+    data ['Executor-log'] = []
+    #logging.basicConfig(filename= 'executor_trace.txt', level = logging.INFO, format = '%(asctime)s %(message)s')
     for ref in refs:
         deserialize_map[ref.key] = ref.deserialize
         if ref.key in cache:
             logging.info('Cache hit for key %s' % str(ref.key))
+            data ['Executor-log'].append({ ref.key : 'Cache hit!' })
             kv_pairs[ref.key] = cache[ref.key]
         else:
             logging.info('Cache miss for key %s' % str(ref.key))
+            data ['Executor-log'].append({ ref.key : 'Cache miss!' })
             keys.add(ref.key)
+    with open('etrace.txt', 'a') as outfile:
+        json.dump(data, outfile)
 
     keys = list(keys)
 
