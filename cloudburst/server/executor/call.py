@@ -170,7 +170,7 @@ def _resolve_ref_normal(refs, kvs, cache):
             logging.info('Cache miss for key %s' % str(ref.key))
             data ['Executor-log'].append({ ref.key : 'Cache miss!' })
             keys.add(ref.key)
-    with open('etrace.txt', 'a') as outfile:
+    with open('etrace.txt', 'w') as outfile:
         json.dump(data, outfile)
 
     keys = list(keys)
