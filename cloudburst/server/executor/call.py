@@ -111,7 +111,7 @@ def _exec_func_normal(kvs, func, args, user_lib, cache):
         refs = list(filter(lambda a: isinstance(a, CloudburstReference), args))
 
     if refs:
-        refs = _resolve_ref_normal(refs, kvs, cache)
+        refs = _resolve_ref_normal(func, refs, kvs, cache)
 
     return _run_function(func, refs, args, user_lib)
 
@@ -153,12 +153,13 @@ def _run_function(func, refs, args, user_lib):
     return func(*func_args)
 
 
-def _resolve_ref_normal(refs, kvs, cache):
+def _resolve_ref_normal(fn, refs, kvs, cache):
     deserialize_map = {}
     kv_pairs = {}
     keys = set()
     data = {}
     data ['Executor-log'] = []
+    data ['Executor-log'].append({ '@func' : fn } )
     #logging.basicConfig(filename= 'executor_trace.txt', level = logging.INFO, format = '%(asctime)s %(message)s')
     for ref in refs:
         deserialize_map[ref.key] = ref.deserialize
@@ -170,7 +171,7 @@ def _resolve_ref_normal(refs, kvs, cache):
             logging.info('Cache miss for key %s' % str(ref.key))
             data ['Executor-log'].append({ ref.key : 'Cache miss!' })
             keys.add(ref.key)
-    with open('etrace.txt', 'w') as outfile:
+    with open('etrace.txt', 'a+') as outfile:
         json.dump(data, outfile)
 
     keys = list(keys)
