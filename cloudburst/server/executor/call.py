@@ -159,7 +159,7 @@ def _resolve_ref_normal(fn, refs, kvs, cache):
     keys = set()
     data = {}
     data ['Executor-log'] = []
-    data ['Executor-log'].append({ '@func' : fn } )
+    data ['Executor-log'].append({ '@func' : str(fn) } )
     #logging.basicConfig(filename= 'executor_trace.txt', level = logging.INFO, format = '%(asctime)s %(message)s')
     for ref in refs:
         deserialize_map[ref.key] = ref.deserialize
