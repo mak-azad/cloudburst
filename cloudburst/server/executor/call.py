@@ -157,14 +157,19 @@ def _resolve_ref_normal(refs, kvs, cache):
     deserialize_map = {}
     kv_pairs = {}
     keys = set()
-
+    data = {}
+    data ['Executor-log'] = []
+    data ['Executor-log'].append({'function_name' : fname})
     for ref in refs:
         deserialize_map[ref.key] = ref.deserialize
         if ref.key in cache:
             kv_pairs[ref.key] = cache[ref.key]
+            data ['Executor-log'].append({ ref.key : 'Cache hit!' })
         else:
             keys.add(ref.key)
-
+            data ['Executor-log'].append({ ref.key : 'Cache miss!' })
+    with open('EXECUTOR_trace.txt', 'a+') as outfile:
+        json.dump(data, outfile)
     keys = list(keys)
 
     if len(keys) != 0:
