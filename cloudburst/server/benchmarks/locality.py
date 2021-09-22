@@ -38,7 +38,7 @@ def run(cloudburst_client, num_requests, create, sckt):
         def dot(cloudburst, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10):
             import numpy as np
             myid = cloudburst.getid()
-            logging.info('Executor Info (git)' % str(myid))
+            logging.info('Executor Info (git): %s ' % str(myid))
             s1 = np.add(v1, v2)
             s2 = np.add(v3, v4)
             s3 = np.add(v5, v6)
