@@ -38,12 +38,12 @@ from cloudburst.shared.reference import CloudburstReference
 from cloudburst.shared.serializer import Serializer
 
 serializer = Serializer()
-
+cpy_fname = ""
 
 def exec_function(exec_socket, kvs, user_library, cache, function_cache):
     call = FunctionCall()
     call.ParseFromString(exec_socket.recv())
-
+    cpy_fname = str(call.name)
     fargs = [serializer.load(arg) for arg in call.arguments.values]
 
     if call.name in function_cache:
@@ -111,7 +111,7 @@ def _exec_func_normal(kvs, func, args, user_lib, cache):
         refs = list(filter(lambda a: isinstance(a, CloudburstReference), args))
 
     if refs:
-        refs = _resolve_ref_normal(func, refs, kvs, cache)
+        refs = _resolve_ref_normal(refs, kvs, cache)
 
     return _run_function(func, refs, args, user_lib)
 
@@ -153,13 +153,14 @@ def _run_function(func, refs, args, user_lib):
     return func(*func_args)
 
 
-def _resolve_ref_normal(fn, refs, kvs, cache):
+def _resolve_ref_normal(refs, kvs, cache):
     deserialize_map = {}
     kv_pairs = {}
     keys = set()
     data = {}
     data ['Executor-log'] = []
-    data ['Executor-log'].append({ '@func' : str(fn) } )
+    data ['Executor-log'].append ( { 'time:' : time.ctime() } )
+    data ['Executor-log'].append({ 'func:' : cpy_fname } )
     #logging.basicConfig(filename= 'executor_trace.txt', level = logging.INFO, format = '%(asctime)s %(message)s')
     for ref in refs:
         deserialize_map[ref.key] = ref.deserialize
@@ -171,7 +172,7 @@ def _resolve_ref_normal(fn, refs, kvs, cache):
             logging.info('Cache miss for key %s' % str(ref.key))
             data ['Executor-log'].append({ ref.key : 'Cache miss!' })
             keys.add(ref.key)
-    with open('etrace.txt', 'a+') as outfile:
+    with open('executor_trace.txt', 'a+') as outfile:
         json.dump(data, outfile)
 
     keys = list(keys)
