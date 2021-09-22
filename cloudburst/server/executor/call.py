@@ -14,7 +14,7 @@
 
 import logging
 import time
-
+import json
 from anna.lattices import (
     Lattice,
     MapLattice,
@@ -38,14 +38,14 @@ from cloudburst.shared.reference import CloudburstReference
 from cloudburst.shared.serializer import Serializer
 
 serializer = Serializer()
-
+fname = ''
 
 def exec_function(exec_socket, kvs, user_library, cache, function_cache):
     call = FunctionCall()
     call.ParseFromString(exec_socket.recv())
 
     fargs = [serializer.load(arg) for arg in call.arguments.values]
-
+    fname = str(call.name)
     if call.name in function_cache:
         f = function_cache[call.name]
     else:
