@@ -38,19 +38,19 @@ from cloudburst.shared.reference import CloudburstReference
 from cloudburst.shared.serializer import Serializer
 
 serializer = Serializer()
-fname = ''
 
 def exec_function(exec_socket, kvs, user_library, cache, function_cache):
     call = FunctionCall()
     call.ParseFromString(exec_socket.recv())
 
     fargs = [serializer.load(arg) for arg in call.arguments.values]
-    fname = str(call.name)
+    
     if call.name in function_cache:
         f = function_cache[call.name]
     else:
         f = utils.retrieve_function(call.name, kvs, user_library, call.consistency)
-
+    fname =''
+    fname = str(call.name)
     if not f:
         logging.info('Function %s not found! Returning an error.' %
                      (call.name))
@@ -60,12 +60,12 @@ def exec_function(exec_socket, kvs, user_library, cache, function_cache):
         function_cache[call.name] = f
         try:
             if call.consistency == NORMAL:
-                result = _exec_func_normal(kvs, f, fargs, user_library, cache)
+                result = _exec_func_normal(fname, kvs, f, fargs, user_library, cache)
                 logging.info('Finished executing %s: %s!' % (call.name,
                                                              str(result)))
             else:
                 dependencies = {}
-                result = _exec_func_causal(kvs, f, fargs, user_library,
+                result = _exec_func_causal(fname, kvs, f, fargs, user_library,
                                            dependencies=dependencies)
         except Exception as e:
             logging.exception('Unexpected error %s while executing function.' %
@@ -86,7 +86,7 @@ def exec_function(exec_socket, kvs, user_library, cache, function_cache):
                      + 'into the KVS.')
 
 
-def _exec_func_normal(kvs, func, args, user_lib, cache):
+def _exec_func_normal(fname, kvs, func, args, user_lib, cache):
     # NOTE: We may not want to keep this permanently but need it for
     # continuations if the upstream function returns multiple things.
     processed = tuple()
@@ -111,7 +111,7 @@ def _exec_func_normal(kvs, func, args, user_lib, cache):
         refs = list(filter(lambda a: isinstance(a, CloudburstReference), args))
 
     if refs:
-        refs = _resolve_ref_normal(refs, kvs, cache)
+        refs = _resolve_ref_normal(fname, refs, kvs, cache)
 
     return _run_function(func, refs, args, user_lib)
 
@@ -153,7 +153,7 @@ def _run_function(func, refs, args, user_lib):
     return func(*func_args)
 
 
-def _resolve_ref_normal(refs, kvs, cache):
+def _resolve_ref_normal(fname, refs, kvs, cache):
     deserialize_map = {}
     kv_pairs = {}
     keys = set()
