@@ -103,6 +103,6 @@ elif [[ "$ROLE" = "benchmark" ]]; then
   echo "    cloudburst_address: $FUNCTION_ADDR" >> conf/cloudburst-config.yml
   echo "    thread_id: $THREAD_ID" >> conf/cloudburst-config.yml
 
-  python3.6 cloudburst/server/benchmarks/server.py
+  #python3.6 cloudburst/server/benchmarks/server.py
 fi
 
